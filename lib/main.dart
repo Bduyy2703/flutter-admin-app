@@ -1,50 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'screens/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:apehome_admin/providers/auth_providers.dart';
+import 'package:apehome_admin/screens/login_screen.dart';
+import 'package:apehome_admin/screens/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'ApeHome Admin',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MaterialApp(
+      title: 'Apehome Admin',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: Consumer<AuthProvider>(
+        builder: (context, auth, _) => auth.isAuthenticated ? HomeScreen() : LoginScreen(),
       ),
-      initialRoute: '/login',
-      getPages: [
-        GetPage(name: '/login', page: () => const LoginScreen()),
-        GetPage(name: '/home', page: () => const HomeScreen()),
-        GetPage(name: '/signup', page: () => const SignupScreen()),
-      ],
-    );
-  }
-}
-
-// Tạm thời định nghĩa HomeScreen và SignupScreen
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Home Screen')),
-    );
-  }
-}
-
-class SignupScreen extends StatelessWidget {
-  const SignupScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Signup Screen')),
+      routes: {
+        '/home': (context) => HomeScreen(),
+        '/login': (context) => LoginScreen(),
+      },
     );
   }
 }
