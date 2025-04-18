@@ -4,8 +4,7 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/shop_list_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
   runApp(const MyApp());
 }
 
@@ -18,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'ApeHome Admin',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        fontFamily: 'Nunito', 
+        fontFamily: 'Nunito',
       ),
       initialRoute: '/login',
       getPages: [

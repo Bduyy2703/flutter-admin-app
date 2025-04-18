@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
         fullName: response['fullName'],
         isPremium: response['isPremium'] ?? false,
       );
-      Get.offNamed('/home'); // Điều hướng đến home
+      Get.offNamed('/home');
     } catch (e) {
       Get.snackbar('Error', 'Login failed: $e');
     } finally {
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/logo.png', // Thêm logo vào thư mục assets
+                'assets/images/logo.png',
                 width: 200,
                 height: 200,
               ),
