@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import '../services/apiService.dart';
 import '../models/shop.dart';
 
 class ShopListScreen extends StatefulWidget {
