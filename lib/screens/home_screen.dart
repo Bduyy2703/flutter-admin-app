@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:get/get.dart'; // Thêm import GetX
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:apehome_admin/providers/auth_provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:apehome_admin/providers/auth_providers.dart';
 import 'package:apehome_admin/screens/login_screen.dart';
 import 'package:apehome_admin/screens/shop_list_screen.dart';
-import 'package:apehome_admin/screens/booking_list_screen.dart';
-import 'package:apehome_admin/screens/settings_screen.dart';
+import 'package:apehome_admin/screens/booking_screen.dart';
+import 'package:apehome_admin/screens/setting_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,46 +15,57 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Map<String, dynamic> _statistics = {};
-  bool _isLoading = true;
+  Map<String, dynamic> _statistics = {'totalShops': 0, 'totalBookings': 0, 'pendingBookings': 0};
+  bool _isLoading = false;
   String _searchQuery = '';
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    _fetchStatistics();
+    _checkAuth();
   }
 
-  Future<void> _fetchStatistics() async {
+  Future<void> _checkAuth() async {
     setState(() => _isLoading = true);
     try {
-      final token = await SharedPreferences.getInstance().then((prefs) => prefs.getString('token'));
+      // Kiểm tra token từ SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      // Nếu không có trong SharedPreferences, thử lấy từ FlutterSecureStorage
       if (token == null) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginScreen()));
+        token = await _storage.read(key: 'token');
+        if (token != null) {
+          await prefs.setString('token', token); // Đồng bộ hóa
+        }
+      }
+
+      if (token == null) {
+        Get.offNamed('/login');
         return;
       }
 
-  //     // Giả định API lấy thống kê
-  //     final response = await http.get(
-  //       Uri.parse('http://192.168.50.89:9090/api/v1/admin/statistics'),
-  //       headers: {'Authorization': 'Bearer $token'},
-  //     );
-  //     if (response.statusCode == 200) {
-  //       _statistics = jsonDecode(response.body);
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Lỗi khi tải thống kê: $e')),
-  //     );
-  //   } finally {
-  //     setState(() => _isLoading = false);
-  //   }
-  // }
+      // Cập nhật AuthProvider nếu cần
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (!authProvider.isAuthenticated) {
+        await authProvider.login(token);
+      }
+    } catch (e) {
+      Get.snackbar('Lỗi', 'Không thể xác thực: $e', backgroundColor: Colors.red, colorText: Colors.white);
+      Get.offNamed('/login');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   Future<void> _logout() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.logout();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginScreen()));
+    await _storage.delete(key: 'token');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    Get.offNamed('/login');
   }
 
   void _onSearch(String query) {
@@ -112,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: Color(0xFF4EA0B7)))
                 : RefreshIndicator(
-                    onRefresh: _fetchStatistics,
+                    onRefresh: _checkAuth,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(16.0),
                       child: Column(
@@ -128,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   title: 'Tổng số Shop',
-                                  value: _statistics['totalShops']?.toString() ?? '0',
+                                  value: _statistics['totalShops'].toString(),
                                   icon: Icons.store,
                                 ),
                               ),
@@ -136,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   title: 'Tổng số Đơn hàng',
-                                  value: _statistics['totalBookings']?.toString() ?? '0',
+                                  value: _statistics['totalBookings'].toString(),
                                   icon: Icons.list_alt,
                                 ),
                               ),
@@ -145,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(height: 16),
                           _buildStatCard(
                             title: 'Đơn hàng đang chờ',
-                            value: _statistics['pendingBookings']?.toString() ?? '0',
+                            value: _statistics['pendingBookings'].toString(),
                             icon: Icons.pending_actions,
                           ),
                         ],

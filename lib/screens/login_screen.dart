@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:apehome_admin/services/apiService.dart';
-import 'package:apehome_admin/constants/api_constants.dart'; // Sử dụng package import
+import 'package:apehome_admin/constants/api_constants.dart';
+import 'package:apehome_admin/providers/auth_providers.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,35 +22,54 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   void _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      Get.snackbar(
+        'Lỗi',
+        'Vui lòng nhập tên đăng nhập và mật khẩu',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
+
     try {
       final response = await _apiService.login(
         _usernameController.text,
         _passwordController.text,
       );
-      // Lưu token và dữ liệu người dùng
-      await _storage.write(
-        key: 'token',
-        value: response['access_token'],
-      );
-      await _storage.write(
-        key: 'userId',
-        value: response['userId'].toString(),
-      );
-      await _storage.write(
-        key: 'fullName',
-        value: response['fullName'],
-      );
-      await _storage.write(
-        key: 'isPremium',
-        value: response['isPremium']?.toString() ?? 'false',
-      );
-      Get.offNamed('/home');
+
+      // Kiểm tra phản hồi API
+      if (response != null && response.containsKey('access_token')) {
+        // Lưu token vào FlutterSecureStorage
+        await _storage.write(key: 'token', value: response['access_token']);
+        await _storage.write(key: 'userId', value: response['userId']?.toString() ?? '');
+        await _storage.write(key: 'fullName', value: response['fullName'] ?? '');
+        await _storage.write(key: 'isPremium', value: response['isPremium']?.toString() ?? 'false');
+
+        // Lưu token vào SharedPreferences để HomeScreen sử dụng
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', response['access_token']);
+
+        // Cập nhật AuthProvider
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.login(response['access_token']);
+
+        // Chuyển hướng đến Home
+        Get.offNamed('/home');
+      } else {
+        throw Exception('Phản hồi API không hợp lệ');
+      }
     } catch (e) {
       Get.snackbar(
         'Đăng nhập thất bại',
-        'Tên đăng nhập hoặc mật khẩu không đúng: $e',
+        'Lỗi: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -81,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 200,
                   height: 200,
                   fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Icon(Icons.error, size: 100),
                 ),
                 const SizedBox(height: 20),
                 // Welcome text
@@ -107,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Username or Email input
                 TextField(
                   controller: _usernameController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Tên đăng nhập hoặc Email',
                     labelStyle: const TextStyle(color: Color(0xFF8BBCE5)),
@@ -117,8 +141,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderSide: BorderSide(color: Color(0xFF416FAE)),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
+                    errorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    focusedErrorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
                 // Password input
@@ -133,6 +164,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     focusedBorder: const OutlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFF416FAE)),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    errorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    focusedErrorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
