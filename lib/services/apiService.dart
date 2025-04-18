@@ -58,7 +58,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final rooms = jsonDecode(response.body);
-      if (rooms.isEmpty) {
+      if (rooms.isEmpty) {  
         return []; // Trả về danh sách rỗng thay vì gây lỗi
       }
       return rooms;
