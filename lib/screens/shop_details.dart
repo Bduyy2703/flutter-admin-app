@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:apehome_admin/screens/care_services_screen.dart';
+import 'package:apehome_admin/screens/room_types_screen.dart';
 
 class ShopDetailsScreen extends StatefulWidget {
   final int shopId;
@@ -34,20 +36,13 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
       }
 
       final uri = Uri.parse('http://192.168.1.29:9090/api/v1/shops/${widget.shopId}');
-
-      print('Calling URI: $uri');
-      print('Token: $token');
-
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
-        // In dữ liệu thô để kiểm tra
         print('Raw response body: ${response.body}');
-
-        // Giải mã dữ liệu dạng UTF-8 từ raw bytes
         final decodedBody = utf8.decode(response.bodyBytes);
         final data = jsonDecode(decodedBody);
         setState(() {
@@ -77,6 +72,24 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
     return price.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]}.',
+    );
+  }
+
+  void _navigateToCareServices() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CareServicesScreen(shopId: widget.shopId),
+      ),
+    );
+  }
+
+  void _navigateToRoomTypes() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoomTypesScreen(shopId: widget.shopId),
+      ),
     );
   }
 
@@ -214,6 +227,52 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   ],
                                 ),
                               ),
+                            ),
+                            SizedBox(height: 20),
+
+                            // Nút điều hướng đến danh sách dịch vụ và loại phòng
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: _navigateToCareServices,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF4EA0B7),
+                                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                  ),
+                                  child: Text(
+                                    'Quản Lý Dịch Vụ',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: _navigateToRoomTypes,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF4EA0B7),
+                                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 5,
+                                  ),
+                                  child: Text(
+                                    'Quản Lý Loại Phòng',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             SizedBox(height: 20),
 
