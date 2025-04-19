@@ -21,7 +21,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Apehome Admin',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      
+      theme: ThemeData(primarySwatch: Colors.blue,fontFamily: 'OpenSans'),
       initialRoute: '/login',
       getPages: [
         GetPage(name: '/login', page: () => LoginScreen()),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Thêm import GetX
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -29,19 +29,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _checkAuth() async {
     setState(() => _isLoading = true);
     try {
-      // Kiểm tra token từ SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
+      String? userId = prefs.getString('userId');
 
       // Nếu không có trong SharedPreferences, thử lấy từ FlutterSecureStorage
       if (token == null) {
         token = await _storage.read(key: 'token');
         if (token != null) {
-          await prefs.setString('token', token); // Đồng bộ hóa
+          await prefs.setString('token', token); // Đồng bộ hóa token
         }
       }
 
-      if (token == null) {
+      if (userId == null) {
+        userId = await _storage.read(key: 'userId');
+        if (userId != null) {
+          await prefs.setString('userId', userId); // Đồng bộ hóa userId
+        }
+      }
+
+      if (token == null || userId == null) {
         Get.offNamed('/login');
         return;
       }
@@ -63,8 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.logout();
     await _storage.delete(key: 'token');
+    await _storage.delete(key: 'userId');
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    await prefs.remove('userId');
     Get.offNamed('/login');
   }
 
@@ -79,13 +88,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF4EA0B7),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4EA0B7), Color(0xFF3070B3)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         elevation: 0,
         title: TextField(
           decoration: InputDecoration(
             hintText: 'Tìm kiếm shop, đơn hàng...',
             hintStyle: TextStyle(color: Colors.white70),
-            border: InputBorder.none,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white24,
             prefixIcon: Icon(Icons.search, color: Colors.white),
           ),
           style: TextStyle(color: Colors.white),
@@ -97,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Subheader
           Container(
             color: Color(0xFF4EA0B7).withOpacity(0.1),
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -131,7 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Tổng quan',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D2D2D),
+                            ),
                           ),
                           SizedBox(height: 16),
                           Row(
@@ -141,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   title: 'Tổng số Shop',
                                   value: _statistics['totalShops'].toString(),
                                   icon: Icons.store,
+                                  backgroundColor: Colors.blue[50]!,
                                 ),
                               ),
                               SizedBox(width: 16),
@@ -149,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   title: 'Tổng số Đơn hàng',
                                   value: _statistics['totalBookings'].toString(),
                                   icon: Icons.list_alt,
+                                  backgroundColor: Colors.green[50]!,
                                 ),
                               ),
                             ],
@@ -158,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             title: 'Đơn hàng đang chờ',
                             value: _statistics['pendingBookings'].toString(),
                             icon: Icons.pending_actions,
+                            backgroundColor: Colors.orange[50]!,
                           ),
                         ],
                       ),
@@ -182,6 +211,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         selectedItemColor: Color(0xFF4EA0B7),
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        elevation: 8,
         onTap: (index) {
           if (index == 0) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsScreen()));
@@ -198,44 +230,83 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSubheaderButton({required String label, required VoidCallback onPressed}) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: Text(label, style: TextStyle(fontSize: 16)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0xFF4EA0B7),
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF4EA0B7), Color(0xFF3070B3)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              offset: Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildStatCard({required String title, required String value, required IconData icon}) {
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color backgroundColor,
+  }) {
     return Card(
-      elevation: 2,
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Color(0xFF4EA0B7), size: 24),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+      color: backgroundColor,
+      child: InkWell(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Đã nhấn vào $title')),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: Color(0xFF4EA0B7), size: 24),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
                   ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4EA0B7),
                 ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF4EA0B7)),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

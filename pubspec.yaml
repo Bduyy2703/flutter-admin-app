@@ -57,11 +57,13 @@ flutter:
     - assets/images/logo.png
     - assets/fonts/
   fonts:
-    - family: Nunito
+    - family: OpenSans
       fonts:
-        - asset: assets/fonts/Nunito-Regular.ttf
-        - asset: assets/fonts/Nunito-Bold.ttf
+        - asset: assets/fonts/OpenSans-Regular.ttf
+        - asset: assets/fonts/OpenSans-Bold.ttf
           weight: 700
+        - asset: assets/fonts/OpenSans-Medium.ttf
+          weight: 500
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

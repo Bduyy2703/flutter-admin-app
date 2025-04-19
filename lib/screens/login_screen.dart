@@ -41,17 +41,17 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      // Kiểm tra phản hồi API
       if (response != null && response.containsKey('access_token')) {
-        // Lưu token vào FlutterSecureStorage
+        // Lưu token và userId vào FlutterSecureStorage
         await _storage.write(key: 'token', value: response['access_token']);
         await _storage.write(key: 'userId', value: response['userId']?.toString() ?? '');
         await _storage.write(key: 'fullName', value: response['fullName'] ?? '');
         await _storage.write(key: 'isPremium', value: response['isPremium']?.toString() ?? 'false');
 
-        // Lưu token vào SharedPreferences để HomeScreen sử dụng
+        // Lưu token và userId vào SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response['access_token']);
+        await prefs.setString('userId', response['userId']?.toString() ?? '');
 
         // Cập nhật AuthProvider
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -103,26 +103,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 200,
                   height: 200,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => Icon(Icons.error, size: 100),
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 100),
                 ),
                 const SizedBox(height: 20),
                 // Welcome text
-                Text(
+                const Text(
                   'Chào mừng đến với ApeHome Admin!',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF3070B3),
+                    color: Color(0xFF3070B3),
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
-                Text(
+                const Text(
                   'Nơi quản lý mọi nhu cầu cho thú cưng!',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF416FAE),
+                    color: Color(0xFF416FAE),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -131,21 +131,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextField(
                   controller: _usernameController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Tên đăng nhập hoặc Email',
-                    labelStyle: const TextStyle(color: Color(0xFF8BBCE5)),
-                    border: const OutlineInputBorder(
+                    labelStyle: TextStyle(color: Color(0xFF8BBCE5)),
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    focusedBorder: const OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFF416FAE)),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    errorBorder: const OutlineInputBorder(
+                    errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    focusedErrorBorder: const OutlineInputBorder(
+                    focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -156,21 +156,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Mật khẩu',
-                    labelStyle: const TextStyle(color: Color(0xFF8BBCE5)),
-                    border: const OutlineInputBorder(
+                    labelStyle: TextStyle(color: Color(0xFF8BBCE5)),
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    focusedBorder: const OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Color(0xFF416FAE)),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    errorBorder: const OutlineInputBorder(
+                    errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    focusedErrorBorder: const OutlineInputBorder(
+                    focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
