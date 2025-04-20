@@ -33,7 +33,7 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/shops'); // Điều chỉnh endpoint theo API của bạn
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/shops'); // Điều chỉnh endpoint theo API của bạn
       final response = await http.post(
         uri,
         headers: {

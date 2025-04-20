@@ -5,10 +5,9 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:apehome_admin/screens/room_type_details.dart';
 
+// room_types_screen.dart
 class RoomTypesScreen extends StatefulWidget {
-  final int shopId;
-
-  const RoomTypesScreen({Key? key, required this.shopId}) : super(key: key);
+  const RoomTypesScreen({Key? key}) : super(key: key); // Xóa tham số shopId
 
   @override
   _RoomTypesScreenState createState() => _RoomTypesScreenState();
@@ -35,7 +34,7 @@ class _RoomTypesScreenState extends State<RoomTypesScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/room-types');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types');
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -72,7 +71,7 @@ class _RoomTypesScreenState extends State<RoomTypesScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/room-types/$roomTypeId');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types/$roomTypeId');
       final response = await http.delete(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -100,7 +99,7 @@ class _RoomTypesScreenState extends State<RoomTypesScreen> {
   void _navigateToCreateRoomType() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => CreateRoomTypeScreen(shopId: widget.shopId)),
+      MaterialPageRoute(builder: (_) => CreateRoomTypeScreen()), // Xóa tham số shopId
     ).then((_) => _fetchRoomTypes());
   }
 
@@ -110,7 +109,6 @@ class _RoomTypesScreenState extends State<RoomTypesScreen> {
       MaterialPageRoute(
         builder: (_) => RoomTypeDetailsScreen(
           roomTypeId: roomTypeId,
-          shopId: widget.shopId,
         ),
       ),
     );

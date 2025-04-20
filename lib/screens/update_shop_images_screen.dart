@@ -46,7 +46,7 @@ class _UpdateShopImagesScreenState extends State<UpdateShopImagesScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/shops/images/${widget.shopId}');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/shops/images/${widget.shopId}');
       final request = http.MultipartRequest('PUT', uri);
 
       request.headers['Authorization'] = 'Bearer $token';

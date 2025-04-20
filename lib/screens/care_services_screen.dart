@@ -34,7 +34,7 @@ class _CareServicesScreenState extends State<CareServicesScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/services/shops/${widget.shopId}');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/services/shops/${widget.shopId}');
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -71,7 +71,7 @@ class _CareServicesScreenState extends State<CareServicesScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/services/$serviceId');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/services/$serviceId');
       final response = await http.delete(
         uri,
         headers: {'Authorization': 'Bearer $token'},

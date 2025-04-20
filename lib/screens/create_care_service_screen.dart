@@ -37,7 +37,7 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/services');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/services');
       final response = await http.post(
         uri,
         headers: {

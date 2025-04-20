@@ -56,7 +56,7 @@ class _ShopListScreenState extends State<ShopListScreen> {
       }
 
       final uri = Uri.parse(
-        'http://192.168.1.29:9090/api/v1/shops/users/$_userId',
+        'http://192.168.41.175:9090/api/v1/shops/users/$_userId',
       ).replace(
         queryParameters: {
           'pageNo': '0',

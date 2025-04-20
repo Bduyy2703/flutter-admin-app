@@ -1,3 +1,4 @@
+import 'package:apehome_admin/screens/room_types_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -117,29 +118,36 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           // Subheader
-          Container(
-            color: Color(0xFF4EA0B7).withOpacity(0.1),
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSubheaderButton(
-                  label: 'My Shop',
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ShopListScreen()),
-                  ),
-                ),
-                _buildSubheaderButton(
-                  label: 'My Booking',
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => BookingListScreen()),
-                  ),
-                ),
-              ],
-            ),
-          ),
+     Container(
+  color: Color(0xFF4EA0B7).withOpacity(0.1),
+  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      _buildSubheaderButton(
+        label: 'My Shop',
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ShopListScreen()),
+        ),
+      ),
+      _buildSubheaderButton(
+        label: 'My Booking',
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => BookingListScreen()),
+        ),
+      ),
+      _buildSubheaderButton(
+        label: 'Room Types',
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => RoomTypesScreen()),
+        ),
+      ),
+    ],
+  ),
+),
           // Nội dung chính
           Expanded(
             child: _isLoading

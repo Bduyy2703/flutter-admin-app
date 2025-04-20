@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
+// create_room_type_screen.dart
 class CreateRoomTypeScreen extends StatefulWidget {
-  final int shopId;
-
-  const CreateRoomTypeScreen({Key? key, required this.shopId}) : super(key: key);
+  const CreateRoomTypeScreen({Key? key}) : super(key: key); // Xóa tham số shopId
 
   @override
   _CreateRoomTypeScreenState createState() => _CreateRoomTypeScreenState();
@@ -36,7 +34,7 @@ class _CreateRoomTypeScreenState extends State<CreateRoomTypeScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/room-types');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types');
       final response = await http.post(
         uri,
         headers: {
@@ -46,7 +44,6 @@ class _CreateRoomTypeScreenState extends State<CreateRoomTypeScreen> {
         body: jsonEncode({
           'name': _nameController.text,
           'description': _descriptionController.text,
-          'shopId': widget.shopId,
         }),
       );
 

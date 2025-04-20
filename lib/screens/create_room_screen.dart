@@ -1,3 +1,4 @@
+// create_room_screen.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,10 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   final int shopId;
-  final int roomTypeId;
 
-  const CreateRoomScreen({Key? key, required this.shopId, required this.roomTypeId})
-      : super(key: key);
+  const CreateRoomScreen({Key? key, required this.shopId}) : super(key: key);
 
   @override
   _CreateRoomScreenState createState() => _CreateRoomScreenState();
@@ -17,11 +16,61 @@ class CreateRoomScreen extends StatefulWidget {
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final _nameController = TextEditingController();
   bool _isLoading = false;
+  List<dynamic> _roomTypes = [];
+  int? _selectedRoomTypeId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRoomTypes();
+  }
+
+  Future<void> _fetchRoomTypes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      if (token == null) {
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
+      }
+
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types');
+      final response = await http.get(
+        uri,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final data = jsonDecode(decodedBody);
+        setState(() {
+          _roomTypes = data;
+          if (_roomTypes.isNotEmpty) {
+            _selectedRoomTypeId = _roomTypes[0]['id'];
+          }
+        });
+      } else {
+        throw Exception('Lỗi khi tải danh sách loại phòng: ${response.statusCode}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: $e')),
+      );
+    }
+  }
 
   Future<void> _createRoom() async {
     if (_nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Vui lòng nhập tên phòng')),
+      );
+      return;
+    }
+
+    if (_selectedRoomTypeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vui lòng chọn loại phòng')),
       );
       return;
     }
@@ -37,7 +86,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.1.29:9090/api/v1/rooms');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms');
       final response = await http.post(
         uri,
         headers: {
@@ -47,7 +96,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         body: jsonEncode({
           'name': _nameController.text,
           'shopId': widget.shopId,
-          'roomTypeId': widget.roomTypeId,
+          'roomTypeId': _selectedRoomTypeId,
         }),
       );
 
@@ -98,6 +147,27 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
+            ),
+            SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              value: _selectedRoomTypeId,
+              decoration: InputDecoration(
+                labelText: 'Loại Phòng',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              items: _roomTypes.map((roomType) {
+                return DropdownMenuItem<int>(
+                  value: roomType['id'],
+                  child: Text(roomType['name'] ?? 'Không tên'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedRoomTypeId = value;
+                });
+              },
             ),
             SizedBox(height: 20),
             Center(
