@@ -34,18 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
       String? token = prefs.getString('token');
       String? userId = prefs.getString('userId');
 
-      // Nếu không có trong SharedPreferences, thử lấy từ FlutterSecureStorage
       if (token == null) {
         token = await _storage.read(key: 'token');
         if (token != null) {
-          await prefs.setString('token', token); // Đồng bộ hóa token
+          await prefs.setString('token', token);
         }
       }
 
       if (userId == null) {
         userId = await _storage.read(key: 'userId');
         if (userId != null) {
-          await prefs.setString('userId', userId); // Đồng bộ hóa userId
+          await prefs.setString('userId', userId);
         }
       }
 
@@ -54,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      // Cập nhật AuthProvider nếu cần
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       if (!authProvider.isAuthenticated) {
         await authProvider.login(token);
@@ -117,38 +115,60 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Subheader
-     Container(
-  color: Color(0xFF4EA0B7).withOpacity(0.1),
-  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      _buildSubheaderButton(
-        label: 'My Shop',
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ShopListScreen()),
-        ),
-      ),
-      _buildSubheaderButton(
-        label: 'My Booking',
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => BookingListScreen()),
-        ),
-      ),
-      _buildSubheaderButton(
-        label: 'Room Types',
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => RoomTypesScreen()),
-        ),
-      ),
-    ],
-  ),
-),
-          // Nội dung chính
+          Container(
+            color: Color(0xFF4EA0B7).withOpacity(0.1),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildSubheaderButton(
+                  context: context,
+                  label: 'My Shop',
+                  onPressed: () {
+                    print('Navigating to /shops');
+                    try {
+                      Navigator.of(context).pushNamed('/shops');
+                    } catch (e) {
+                      print('Error navigating to /shops: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Không thể chuyển đến My Shop: $e')),
+                      );
+                    }
+                  },
+                ),
+                _buildSubheaderButton(
+                  context: context,
+                  label: 'My Booking',
+                  onPressed: () {
+                    print('Navigating to /bookings');
+                    try {
+                      Navigator.of(context).pushNamed('/bookings');
+                    } catch (e) {
+                      print('Error navigating to /bookings: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Không thể chuyển đến My Booking: $e')),
+                      );
+                    }
+                  },
+                ),
+                _buildSubheaderButton(
+                  context: context,
+                  label: 'Room Types',
+                  onPressed: () {
+                    print('Navigating to /room-types');
+                    try {
+                      Navigator.of(context).pushNamed('/room-types');
+                    } catch (e) {
+                      print('Error navigating to /room-types: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Không thể chuyển đến Room Types: $e')),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: Color(0xFF4EA0B7)))
@@ -172,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Expanded(
                                 child: _buildStatCard(
-                                  title: 'Tổng số Shop',
+                                  label: 'Tổng số Shop', // Sửa từ title thành label
                                   value: _statistics['totalShops'].toString(),
                                   icon: Icons.store,
                                   backgroundColor: Colors.blue[50]!,
@@ -181,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: _buildStatCard(
-                                  title: 'Tổng số Đơn hàng',
+                                  label: 'Tổng số Đơn hàng', // Sửa từ title thành label
                                   value: _statistics['totalBookings'].toString(),
                                   icon: Icons.list_alt,
                                   backgroundColor: Colors.green[50]!,
@@ -191,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(height: 16),
                           _buildStatCard(
-                            title: 'Đơn hàng đang chờ',
+                            label: 'Đơn hàng đang chờ', // Sửa từ title thành label
                             value: _statistics['pendingBookings'].toString(),
                             icon: Icons.pending_actions,
                             backgroundColor: Colors.orange[50]!,
@@ -224,7 +244,15 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 8,
         onTap: (index) {
           if (index == 0) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsScreen()));
+            print('Navigating to /settings');
+            try {
+              Navigator.of(context).pushNamed('/settings');
+            } catch (e) {
+              print('Error navigating to /settings: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Không thể chuyển đến Settings: $e')),
+              );
+            }
           } else if (index == 1) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Liên hệ hỗ trợ')),
@@ -237,9 +265,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSubheaderButton({required String label, required VoidCallback onPressed}) {
+  Widget _buildSubheaderButton({
+    required BuildContext context,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
     return InkWell(
-      onTap: onPressed,
+      onTap: () {
+        print('Button $label tapped');
+        onPressed();
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -271,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatCard({
-    required String title,
+    required String label,
     required String value,
     required IconData icon,
     required Color backgroundColor,
@@ -283,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: InkWell(
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã nhấn vào $title')),
+            SnackBar(content: Text('Đã nhấn vào $label')),
           );
         },
         borderRadius: BorderRadius.circular(12),
@@ -298,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      title,
+                      label,
                       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
                   ),

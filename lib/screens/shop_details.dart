@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:apehome_admin/screens/care_services_screen.dart';
-import 'package:apehome_admin/screens/room_types_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';

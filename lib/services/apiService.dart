@@ -24,5 +24,102 @@ class ApiService {
     }
   }
 
-  // Các hàm khác như getShops, getAvailableRooms...
+  // Lấy danh sách bookings
+  Future<List<dynamic>?> getBookings(String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/bookings'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch bookings: ${response.body}');
+    }
+  }
+
+  // Lấy danh sách bookings theo shopId
+  Future<List<dynamic>?> getBookingsByShopId(int shopId, String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/bookings/shops/$shopId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch bookings for shop $shopId: ${response.body}');
+    }
+  }
+
+  // Hủy booking
+  Future<Map<String, dynamic>?> cancelBooking(int bookingId, String token) async {
+    final response = await http.put(
+      Uri.parse('${ApiConstants.authBaseUrl}/bookings/cancel/$bookingId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'status': 'CANCELLED',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return {'status': 'success'};
+    } else {
+      throw Exception('Failed to cancel booking: ${response.body}');
+    }
+  }
+
+  // Lấy chi tiết booking
+  Future<Map<String, dynamic>?> getBookingDetails(int bookingId, String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/bookings/$bookingId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch booking details: ${response.body}');
+    }
+  }
+
+  // Lấy danh sách shops theo userId
+  Future<List<dynamic>?> getShopsByUserId(String userId, String token) async {
+    final uri = Uri.parse('${ApiConstants.authBaseUrl}/shops/users/$userId').replace(
+      queryParameters: {
+        'pageNo': '0',
+        'pageSize': '10',
+        'sortBy': 'id',
+        'sortDir': 'asc',
+      },
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      final data = jsonDecode(decodedBody);
+      return data['content'] ?? data;
+    } else {
+      throw Exception('Failed to fetch shops for user $userId: ${response.body}');
+    }
+  }
 }
