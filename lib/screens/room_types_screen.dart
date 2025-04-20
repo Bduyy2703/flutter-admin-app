@@ -99,7 +99,7 @@ class _RoomTypesScreenState extends State<RoomTypesScreen> {
   void _navigateToCreateRoomType() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => CreateRoomTypeScreen()), // Xóa tham số shopId
+      MaterialPageRoute(builder: (_) => CreateRoomTypeScreen()), 
     ).then((_) => _fetchRoomTypes());
   }
 
