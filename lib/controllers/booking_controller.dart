@@ -16,51 +16,67 @@ class BookingController extends GetxController {
     super.onInit();
   }
 
-  Future<void> fetchBookings() async {
+Future<void> fetchBookings() async {
   try {
-    print('Fetching bookings...');
+    print('Đang lấy danh sách booking...');
     isLoading.value = true;
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     print('Token: $token');
 
     if (token == null) {
-      print('Error: Token not found, redirecting to login');
+      print('Lỗi: Không tìm thấy token, chuyển hướng đến trang đăng nhập');
       Get.offNamed('/login');
       return;
     }
 
-    // Giải mã token để lấy userId
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-    final userId = decodedToken['userId']; // tuỳ theo payload của bạn
+    final userId = decodedToken['userId'];
 
-    print('Decoded userId: $userId');
+    print('userId đã giải mã: $userId');
     if (userId == null) {
-      print('Error: userId not found in token, redirecting to login');
+      print('Lỗi: Không tìm thấy userId trong token, chuyển hướng đến trang đăng nhập');
       Get.offNamed('/login');
       return;
     }
 
     final shopsResponse = await apiService.getShopsByUserId(userId.toString(), token);
-    print('Shops response: $shopsResponse');
+    print('Danh sách cửa hàng: $shopsResponse');
 
     if (shopsResponse == null || shopsResponse.isEmpty) {
-      print('Error: No shops found for user');
+      print('Lỗi: Không tìm thấy cửa hàng nào của user');
       return;
     }
 
-    final shopId = shopsResponse[0]['id'];
-    print('Using shopId: $shopId');
+    bookings.clear();
 
-    final response = await apiService.getBookingsByShopId(shopId, token);
-    print('Bookings response: $response');
+    for (var shop in shopsResponse) {
+      final shopId = shop['id'];
+      print('Đang lấy booking cho shopId: $shopId');
 
-    if (response != null) {
-      bookings.value = List<Map<String, dynamic>>.from(response);
-      filterBookings();
+      final response = await apiService.getBookingsByShopId(shopId, token);
+      print('Danh sách booking cho shop $shopId: $response');
+
+      if (response != null && response.isNotEmpty) {
+        var shopBookings = List<Map<String, dynamic>>.from(response)
+            .map((booking) => {
+                  ...booking,
+                  'shopId': shopId,
+                  'shopName': shop['name'],
+                  'shopImage': shop['imageFiles'] != null && shop['imageFiles'].isNotEmpty
+                      ? shop['imageFiles'][0]['url']
+                      : null,
+                })
+            .toList();
+        bookings.addAll(shopBookings);
+      } else {
+        print('Không có booking nào cho shopId: $shopId');
+      }
     }
+
+    filterBookings();
   } catch (e) {
-    print('Error fetching bookings: $e');
+    print('Lỗi khi lấy booking: $e');
   } finally {
     isLoading.value = false;
   }
