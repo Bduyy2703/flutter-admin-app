@@ -1,47 +1,34 @@
-import 'package:apehome_admin/providers/room_types_provider.dart';
+import 'package:apehome_admin/controllers/room_types_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
-class RoomTypeModal extends StatefulWidget {
+class RoomTypeModal extends StatelessWidget {
   final int? roomTypeId;
   final String? initialName;
   final String? initialNote;
 
-  const RoomTypeModal({
+  RoomTypeModal({
     Key? key,
     this.roomTypeId,
     this.initialName,
     this.initialNote,
   }) : super(key: key);
 
-  @override
-  _RoomTypeModalState createState() => _RoomTypeModalState();
-}
-
-class _RoomTypeModalState extends State<RoomTypeModal> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _noteController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.initialName ?? '');
-    _noteController = TextEditingController(text: widget.initialNote ?? '');
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
+  final _nameController = TextEditingController();
+  final _noteController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<RoomTypesController>();
+
+    // Gán giá trị ban đầu cho các controller
+    _nameController.text = initialName ?? '';
+    _noteController.text = initialNote ?? '';
+
     return AlertDialog(
       title: Text(
-        widget.roomTypeId == null ? 'Tạo Loại Phòng Mới' : 'Chỉnh Sửa Loại Phòng',
+        roomTypeId == null ? 'Tạo Loại Phòng Mới' : 'Chỉnh Sửa Loại Phòng',
         style: TextStyle(color: Color(0xFF4EA0B7)),
       ),
       content: SingleChildScrollView(
@@ -83,46 +70,43 @@ class _RoomTypeModalState extends State<RoomTypeModal> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Get.back();
           },
           child: Text('Hủy', style: TextStyle(color: Colors.grey)),
         ),
-        Consumer<RoomTypesProvider>(
-          builder: (context, provider, child) {
-            return ElevatedButton(
-              onPressed: provider.isModalLoading
-                  ? null
-                  : () async {
-                      if (!_formKey.currentState!.validate()) {
-                        return;
-                      }
+        Obx(() {
+          return ElevatedButton(
+            onPressed: controller.isModalLoading.value
+                ? null
+                : () async {
+                    if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
 
-                      final success = await provider.createOrUpdateRoomType(
-                        context,
-                        _nameController.text,
-                        _noteController.text,
-                        widget.roomTypeId,
-                      );
+                    final success = await controller.createOrUpdateRoomType(
+                      _nameController.text,
+                      _noteController.text,
+                      roomTypeId,
+                    );
 
-                      if (success) {
-                        Navigator.pop(context);
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4EA0B7),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                    if (success) {
+                      Get.back();
+                    }
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF4EA0B7),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: provider.isModalLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                      widget.roomTypeId == null ? 'Tạo' : 'Cập Nhật',
-                      style: TextStyle(color: Colors.white),
-                    ),
-            );
-          },
-        ),
+            ),
+            child: controller.isModalLoading.value
+                ? CircularProgressIndicator(color: Colors.white)
+                : Text(
+                    roomTypeId == null ? 'Tạo' : 'Cập Nhật',
+                    style: TextStyle(color: Colors.white),
+                  ),
+          );
+        }),
       ],
     );
   }

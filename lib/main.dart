@@ -1,35 +1,33 @@
+import 'package:apehome_admin/screens/room_types_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-import 'package:apehome_admin/providers/auth_providers.dart';
 import 'package:apehome_admin/screens/login_screen.dart';
 import 'package:apehome_admin/screens/home_screen.dart';
+import 'package:provider/provider.dart'; // Thêm import cho provider
+import 'package:apehome_admin/providers/auth_providers.dart'; // Import AuthProvider
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: MyApp(),
-    ),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Apehome Admin',
-      
-      theme: ThemeData(primarySwatch: Colors.blue,fontFamily: 'OpenSans'),
-      initialRoute: '/login',
-      getPages: [
-        GetPage(name: '/login', page: () => LoginScreen()),
-        GetPage(name: '/home', page: () => HomeScreen()),
-        // Thêm route signup nếu cần
-        // GetPage(name: '/signup', page: () => SignupScreen()),
-      ],
+    return ChangeNotifierProvider(
+      create: (_) => AuthProvider(), // Khởi tạo AuthProvider
+      child: GetMaterialApp(
+        title: 'Apehome Admin',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: 'OpenSans',
+        ),
+        initialRoute: '/login',
+        getPages: [
+          GetPage(name: '/login', page: () => LoginScreen()),
+          GetPage(name: '/home', page: () => HomeScreen()),
+          GetPage(name: '/room-types', page: () => RoomTypesScreen()),
+        ],
+      ),
     );
   }
 }
