@@ -9,6 +9,7 @@ import 'package:apehome_admin/screens/login_screen.dart';
 import 'package:apehome_admin/screens/shop_list_screen.dart';
 import 'package:apehome_admin/screens/booking_screen.dart';
 import 'package:apehome_admin/screens/setting_screen.dart';
+import 'package:animate_do/animate_do.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -86,140 +87,238 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF4EA0B7), Color(0xFF3070B3)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        elevation: 0,
-        title: TextField(
-          decoration: InputDecoration(
-            hintText: 'Tìm kiếm shop, đơn hàng...',
-            hintStyle: TextStyle(color: Colors.white70),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: Colors.white24,
-            prefixIcon: Icon(Icons.search, color: Colors.white),
-          ),
-          style: TextStyle(color: Colors.white),
-          onSubmitted: _onSearch,
-        ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: Color(0xFF4EA0B7).withOpacity(0.1),
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSubheaderButton(
-                  context: context,
-                  label: 'My Shop',
-                  onPressed: () {
-                    print('Navigating to /shops');
-                    try {
-                      Navigator.of(context).pushNamed('/shops');
-                    } catch (e) {
-                      print('Error navigating to /shops: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Không thể chuyển đến My Shop: $e')),
-                      );
-                    }
-                  },
+      body: CustomScrollView(
+        slivers: [
+          // AppBar cải tiến
+          SliverAppBar(
+            expandedHeight: 200.0,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4EA0B7), Color(0xFF3070B3)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                _buildSubheaderButton(
-                  context: context,
-                  label: 'My Booking',
-                  onPressed: () {
-                    print('Navigating to /bookings');
-                    try {
-                      Navigator.of(context).pushNamed('/bookings');
-                    } catch (e) {
-                      print('Error navigating to /bookings: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Không thể chuyển đến My Booking: $e')),
-                      );
-                    }
-                  },
-                ),
-                _buildSubheaderButton(
-                  context: context,
-                  label: 'Room Types',
-                  onPressed: () {
-                    print('Navigating to /room-types');
-                    try {
-                      Navigator.of(context).pushNamed('/room-types');
-                    } catch (e) {
-                      print('Error navigating to /room-types: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Không thể chuyển đến Room Types: $e')),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator(color: Color(0xFF4EA0B7)))
-                : RefreshIndicator(
-                    onRefresh: _checkAuth,
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tổng quan',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D2D2D),
+                child: Stack(
+                  children: [
+                    // Hình nền mờ
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: 0.1,
+                        child: Image.asset(
+                          'assets/background.png', // Thêm hình nền nếu có
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(),
+                        ),
+                      ),
+                    ),
+                    // Nội dung trong AppBar
+                    SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'ApeHome Admin',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Color(0xFF4EA0B7),
+                                    size: 28,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatCard(
-                                  label: 'Tổng số Shop', // Sửa từ title thành label
-                                  value: _statistics['totalShops'].toString(),
-                                  icon: Icons.store,
-                                  backgroundColor: Colors.blue[50]!,
+                            SizedBox(height: 16),
+                            FadeInDown(
+                              duration: Duration(milliseconds: 500),
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Tìm kiếm shop, đơn hàng...',
+                                  hintStyle: TextStyle(color: Colors.white70),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white.withOpacity(0.2),
+                                  prefixIcon: Icon(Icons.search, color: Colors.white),
+                                  contentPadding: EdgeInsets.symmetric(vertical: 0),
                                 ),
+                                style: TextStyle(color: Colors.white),
+                                onSubmitted: _onSearch,
                               ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: _buildStatCard(
-                                  label: 'Tổng số Đơn hàng', // Sửa từ title thành label
-                                  value: _statistics['totalBookings'].toString(),
-                                  icon: Icons.list_alt,
-                                  backgroundColor: Colors.green[50]!,
-                                ),
-                              ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Nội dung chính
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                // Subheader Buttons
+                FadeInUp(
+                  duration: Duration(milliseconds: 600),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildSubheaderButton(
+                            context: context,
+                            label: 'My Shop',
+                            icon: Icons.store,
+                            onPressed: () {
+                              print('Navigating to /shops');
+                              try {
+                                Navigator.of(context).pushNamed('/shops');
+                              } catch (e) {
+                                print('Error navigating to /shops: $e');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Không thể chuyển đến My Shop: $e')),
+                                );
+                              }
+                            },
                           ),
-                          SizedBox(height: 16),
-                          _buildStatCard(
-                            label: 'Đơn hàng đang chờ', // Sửa từ title thành label
-                            value: _statistics['pendingBookings'].toString(),
-                            icon: Icons.pending_actions,
-                            backgroundColor: Colors.orange[50]!,
+                          SizedBox(width: 12),
+                          _buildSubheaderButton(
+                            context: context,
+                            label: 'My Booking',
+                            icon: Icons.list_alt,
+                            onPressed: () {
+                              print('Navigating to /bookings');
+                              try {
+                                Navigator.of(context).pushNamed('/bookings');
+                              } catch (e) {
+                                print('Error navigating to /bookings: $e');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Không thể chuyển đến My Booking: $e')),
+                                );
+                              }
+                            },
+                          ),
+                          SizedBox(width: 12),
+                          _buildSubheaderButton(
+                            context: context,
+                            label: 'Room Types',
+                            icon: Icons.room_preferences,
+                            onPressed: () {
+                              print('Navigating to /room-types');
+                              try {
+                                Navigator.of(context).pushNamed('/room-types');
+                              } catch (e) {
+                                print('Error navigating to /room-types: $e');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Không thể chuyển đến Room Types: $e')),
+                                );
+                              }
+                            },
+                          ),
+                          SizedBox(width: 12),
+                          _buildSubheaderButton(
+                            context: context,
+                            label: 'Pet Type',
+                            icon: Icons.pets,
+                            onPressed: () {
+                              print('Navigating to /pet-types');
+                              try {
+                                Navigator.of(context).pushNamed('/pet-types');
+                              } catch (e) {
+                                print('Error navigating to /pet-types: $e');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Không thể chuyển đến Pet Type: $e')),
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
+                ),
+                // Tổng quan
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FadeInLeft(
+                        duration: Duration(milliseconds: 700),
+                        child: Text(
+                          'Tổng quan',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D2D2D),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      FadeInUp(
+                        duration: Duration(milliseconds: 800),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                label: 'Tổng số Shop',
+                                value: _statistics['totalShops'].toString(),
+                                icon: Icons.store,
+                                gradientColors: [Colors.blue[300]!, Colors.blue[600]!],
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: _buildStatCard(
+                                label: 'Tổng số Đơn hàng',
+                                value: _statistics['totalBookings'].toString(),
+                                icon: Icons.list_alt,
+                                gradientColors: [Colors.green[300]!, Colors.green[600]!],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      FadeInUp(
+                        duration: Duration(milliseconds: 900),
+                        child: _buildStatCard(
+                          label: 'Đơn hàng đang chờ',
+                          value: _statistics['pendingBookings'].toString(),
+                          icon: Icons.pending_actions,
+                          gradientColors: [Colors.orange[300]!, Colors.orange[600]!],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -241,7 +340,10 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Color(0xFF4EA0B7),
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.white,
-        elevation: 8,
+        elevation: 12,
+        type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w400),
         onTap: (index) {
           if (index == 0) {
             print('Navigating to /settings');
@@ -268,38 +370,47 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSubheaderButton({
     required BuildContext context,
     required String label,
+    required IconData icon,
     required VoidCallback onPressed,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         print('Button $label tapped');
         onPressed();
       },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF4EA0B7), Color(0xFF3070B3)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
-              offset: Offset(0, 2),
-              blurRadius: 4,
+              color: Colors.black.withOpacity(0.2),
+              offset: Offset(0, 4),
+              blurRadius: 8,
             ),
           ],
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -309,46 +420,64 @@ class _HomeScreenState extends State<HomeScreen> {
     required String label,
     required String value,
     required IconData icon,
-    required Color backgroundColor,
+    required List<Color> gradientColors,
   }) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: backgroundColor,
-      child: InkWell(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã nhấn vào $label')),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: Color(0xFF4EA0B7), size: 24),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Đã nhấn vào $label')),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      child: Icon(icon, color: Colors.white, size: 24),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4EA0B7),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                SizedBox(height: 12),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

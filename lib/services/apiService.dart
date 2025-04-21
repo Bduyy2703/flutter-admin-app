@@ -113,8 +113,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body); // Parse JSON
-      return jsonResponse['message']; // Lấy giá trị của "message"
+      return response.body; // Trả về chuỗi thuần túy, không dùng jsonDecode
     } else {
       throw Exception(
         'Lỗi khi cập nhật trạng thái đơn hàng $bookingId: ${response.body}',

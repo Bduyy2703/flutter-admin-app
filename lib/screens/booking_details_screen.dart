@@ -470,7 +470,7 @@ class BookingDetailsScreen extends StatelessWidget {
           print('Pet data for petId ${bookingDetails['petId']}: $pet');
           if (pet != null) {
             bookingDetails['petName'] = pet['name'];
-            bookingDetails['petType'] = pet['type'];
+            bookingDetails['petType'] = pet['breed'];
             bookingDetails['petAge'] = pet['age'];
           } else {
             print('Không tìm thấy thông tin thú cưng với petId: ${bookingDetails['petId']}');
@@ -488,7 +488,7 @@ class BookingDetailsScreen extends StatelessWidget {
           final user = await apiService.getUserById(bookingDetails['userId'], token);
           print('User data for userId ${bookingDetails['userId']}: $user');
           if (user != null) {
-            bookingDetails['userName'] = user['name'];
+            bookingDetails['userName'] = user['username'];
             bookingDetails['userEmail'] = user['email'];
             bookingDetails['userPhone'] = user['phone'];
           } else {
