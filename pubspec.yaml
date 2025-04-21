@@ -41,6 +41,7 @@ dependencies:
   device_info_plus: ^11.3.3
   cached_network_image: ^3.4.1
   animate_do: ^4.2.0
+  fl_chart: ^0.71.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -58,7 +59,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/background.png
+    # - assets/background.png
     - assets/images/logo.png
     - assets/fonts/
   fonts:
