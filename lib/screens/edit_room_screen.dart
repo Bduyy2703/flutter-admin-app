@@ -4,16 +4,16 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 
-class CreateRoomScreen extends StatefulWidget {
-  final int shopId;
+class EditRoomScreen extends StatefulWidget {
+  final Map<String, dynamic> room;
 
-  const CreateRoomScreen({Key? key, required this.shopId}) : super(key: key);
+  const EditRoomScreen({Key? key, required this.room}) : super(key: key);
 
   @override
-  _CreateRoomScreenState createState() => _CreateRoomScreenState();
+  _EditRoomScreenState createState() => _EditRoomScreenState();
 }
 
-class _CreateRoomScreenState extends State<CreateRoomScreen> {
+class _EditRoomScreenState extends State<EditRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -29,6 +29,11 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   @override
   void initState() {
     super.initState();
+    _nameController.text = widget.room['name'] ?? '';
+    _descriptionController.text = widget.room['description'] ?? '';
+    _codesController.text = (widget.room['codes'] as List<dynamic>?)?.join(', ') ?? '';
+    _selectedStatus = widget.room['status'] ?? 'AVAILABLE';
+    _selectedRoomTypeId = widget.room['roomType']?['id'];
     _fetchRoomTypes();
   }
 
@@ -55,7 +60,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         final data = jsonDecode(decodedBody);
         setState(() {
           _roomTypes = data;
-          if (_roomTypes.isNotEmpty) {
+          if (_selectedRoomTypeId == null && _roomTypes.isNotEmpty) {
             _selectedRoomTypeId = _roomTypes[0]['id'];
           }
         });
@@ -83,7 +88,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     super.dispose();
   }
 
-  Future<void> _createRoom() async {
+  Future<void> _updateRoom() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -99,8 +104,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
       final codes = _codesController.text.split(',').map((code) => code.trim()).toList();
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms');
-      final response = await http.post(
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms/${widget.room['id']}');
+      final response = await http.put(
         uri,
         headers: {
           'Authorization': 'Bearer $token',
@@ -110,7 +115,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           'name': _nameController.text,
           'description': _descriptionController.text,
           'status': _selectedStatus,
-          'shopId': widget.shopId,
+          'shopId': widget.room['shopId'],
           'roomTypeId': _selectedRoomTypeId,
           'codes': codes,
         }),
@@ -118,19 +123,19 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tạo phòng thành công')),
+          SnackBar(content: Text('Cập nhật phòng thành công')),
         );
         Navigator.pop(context);
       } else if (response.statusCode == 401) {
         print('Không có quyền - Token có thể không hợp lệ hoặc hết hạn');
         Navigator.pushReplacementNamed(context, '/login');
       } else {
-        throw Exception('Lỗi khi tạo phòng: ${response.statusCode}');
+        throw Exception('Lỗi khi cập nhật phòng: ${response.statusCode}');
       }
     } catch (e) {
-      print('Tạo phòng - Lỗi: $e');
+      print('Cập nhật phòng - Lỗi: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể tạo phòng. Vui lòng thử lại!')),
+        SnackBar(content: Text('Không thể cập nhật phòng. Vui lòng thử lại!')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -153,7 +158,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             ),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Tạo Phòng Mới',
+                'Chỉnh Sửa Phòng',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -354,7 +359,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                             duration: Duration(milliseconds: 1000),
                             child: Center(
                               child: ElevatedButton(
-                                onPressed: _isLoading ? null : _createRoom,
+                                onPressed: _isLoading ? null : _updateRoom,
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                                   shape: RoundedRectangleBorder(
@@ -375,7 +380,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                                   child: Container(
                                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                                     child: Text(
-                                      _isLoading ? 'Đang Tạo...' : 'Tạo Phòng',
+                                      _isLoading ? 'Đang Cập Nhật...' : 'Lưu Thay Đổi',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
