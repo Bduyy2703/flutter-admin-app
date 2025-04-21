@@ -283,13 +283,6 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
     }
   }
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-  }
-
   void _navigateToCareServices() {
     Navigator.push(
       context,
@@ -309,8 +302,6 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
     final shopImage = _shopDetails != null && _shopDetails!['imageFiles'] != null && _shopDetails!['imageFiles'].isNotEmpty
         ? _shopDetails!['imageFiles'][0]['url']
         : 'https://i.imgur.com/1tMFzp8.png';
-
-    final services = _shopDetails != null && _shopDetails!['services'] != null ? _shopDetails!['services'] as List : [];
 
     return Scaffold(
       backgroundColor: Color(0xFFF5F6F5),
@@ -757,101 +748,6 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 ],
                               ),
                             ),
-                            SizedBox(height: 20),
-                            FadeInUp(
-                              duration: Duration(milliseconds: 700),
-                              child: Text(
-                                'Dịch Vụ',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2D2D2D),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 12),
-                            services.isEmpty
-                                ? Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.pets, size: 50, color: Colors.grey[400]),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            'Không có dịch vụ nào',
-                                            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: services.length,
-                                    itemBuilder: (context, index) {
-                                      final service = services[index];
-                                      return FadeInUp(
-                                        duration: Duration(milliseconds: 400 + (index * 100)),
-                                        child: Card(
-                                          elevation: 4,
-                                          margin: EdgeInsets.only(bottom: 12),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(15),
-                                              gradient: LinearGradient(
-                                                colors: [Colors.white, Colors.grey[100]!],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                            ),
-                                            child: ListTile(
-                                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                              leading: CircleAvatar(
-                                                backgroundColor: Color(0xFF4EA0B7).withOpacity(0.1),
-                                                child: Icon(
-                                                  Icons.pets,
-                                                  color: Color(0xFF4EA0B7),
-                                                  size: 24,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                service['type'] ?? 'Không tên',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color(0xFF2D2D2D),
-                                                ),
-                                              ),
-                                              subtitle: Padding(
-                                                padding: const EdgeInsets.only(top: 4),
-                                                child: Text(
-                                                  service['description'] ?? 'Không có mô tả',
-                                                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              trailing: Text(
-                                                '${_formatPrice((service['price'] as num).toInt())} VND',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color(0xFF4EA0B7),
-                                                ),
-                                              ),
-                                              onTap: () {
-                                                // Điều hướng đến màn hình chi tiết dịch vụ (nếu có)
-                                                // Ví dụ: Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceDetailsScreen(serviceId: service['id'])));
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
                             SizedBox(height: 20),
                           ],
                         ),

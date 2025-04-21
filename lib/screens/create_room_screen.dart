@@ -17,6 +17,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _priceController = TextEditingController(); // Thêm controller cho price
+  final _signController = TextEditingController();  // Thêm controller cho sign
   final _codesController = TextEditingController();
   String? _selectedStatus;
   int? _selectedRoomTypeId;
@@ -24,7 +26,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   bool _isLoading = false;
   bool _isFetchingRoomTypes = true;
 
-  final List<String> _statusOptions = ['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'];
+  final List<String> _statusOptions = ['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'CLOSED'];
 
   @override
   void initState() {
@@ -79,6 +81,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _priceController.dispose(); // Dispose controller mới
+    _signController.dispose();  // Dispose controller mới
     _codesController.dispose();
     super.dispose();
   }
@@ -109,14 +113,16 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         body: jsonEncode({
           'name': _nameController.text,
           'description': _descriptionController.text,
-          'status': _selectedStatus,
+          'price': double.parse(_priceController.text), // Thêm price
+          'status': _selectedStatus!.toLowerCase(),
+          'sign': _signController.text, // Thêm sign
           'shopId': widget.shopId,
           'roomTypeId': _selectedRoomTypeId,
           'codes': codes,
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Tạo phòng thành công')),
         );
@@ -242,7 +248,71 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                           ),
                           SizedBox(height: 12),
                           FadeInUp(
+                            duration: Duration(milliseconds: 650),
+                            child: TextFormField(
+                              controller: _priceController,
+                              decoration: InputDecoration(
+                                labelText: 'Giá Phòng',
+                                prefixIcon: Icon(Icons.attach_money, color: Color(0xFF4EA0B7)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Color(0xFF4EA0B7)),
+                                ),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Vui lòng nhập giá phòng';
+                                }
+                                try {
+                                  double.parse(value);
+                                  return null;
+                                } catch (e) {
+                                  return 'Giá phòng phải là một số hợp lệ';
+                                }
+                              },
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          FadeInUp(
                             duration: Duration(milliseconds: 700),
+                            child: TextFormField(
+                              controller: _signController,
+                              decoration: InputDecoration(
+                                labelText: 'Dấu Hiệu (Sign)',
+                                prefixIcon: Icon(Icons.label, color: Color(0xFF4EA0B7)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Color(0xFF4EA0B7)),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Vui lòng nhập dấu hiệu';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          FadeInUp(
+                            duration: Duration(milliseconds: 750),
                             child: DropdownButtonFormField<String>(
                               value: _selectedStatus,
                               decoration: InputDecoration(

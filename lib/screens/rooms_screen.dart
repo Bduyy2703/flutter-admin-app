@@ -309,7 +309,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                                         children: [
                                           SizedBox(height: 5),
                                           Text(
-                                            'Loại: ${(room['roomType']?['name'] ?? 'Không xác định').toUpperCase()}',
+                                            'Loại: ${(room['roomType']?['name'] ?? 'comfortable room').toUpperCase()}',
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Color(0xFF6B7280),
@@ -324,6 +324,14 @@ class _RoomsScreenState extends State<RoomsScreen> {
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
+                                          ),
+                                          SizedBox(height: 5),
+                                          Text(
+                                            'Giá: ${room['price']?.toString() ?? 'Không xác định'}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xFF6B7280),
+                                            ),
                                           ),
                                           SizedBox(height: 5),
                                           Text(
