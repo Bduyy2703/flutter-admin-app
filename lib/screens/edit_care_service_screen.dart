@@ -4,18 +4,17 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 
-class CreateCareServiceScreen extends StatefulWidget {
-  final int shopId;
+class EditCareServiceScreen extends StatefulWidget {
+  final Map<String, dynamic> service;
 
-  const CreateCareServiceScreen({Key? key, required this.shopId})
+  const EditCareServiceScreen({Key? key, required this.service})
     : super(key: key);
 
   @override
-  _CreateCareServiceScreenState createState() =>
-      _CreateCareServiceScreenState();
+  _EditCareServiceScreenState createState() => _EditCareServiceScreenState();
 }
 
-class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
+class _EditCareServiceScreenState extends State<EditCareServiceScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -26,6 +25,15 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
   final List<String> _serviceTypes = ['spa', 'vet', 'vaccine', 'hotel'];
 
   @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.service['name'] ?? '';
+    _descriptionController.text = widget.service['description'] ?? '';
+    _priceController.text = widget.service['price']?.toString() ?? '0';
+    _selectedType = widget.service['type'];
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
@@ -33,7 +41,7 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
     super.dispose();
   }
 
-  Future<void> _createService() async {
+  Future<void> _updateService() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -47,8 +55,10 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/services');
-      final response = await http.post(
+      final uri = Uri.parse(
+        'http://192.168.41.175:9090/api/v1/services/${widget.service['id']}',
+      );
+      final response = await http.put(
         uri,
         headers: {
           'Authorization': 'Bearer $token',
@@ -57,28 +67,30 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
         body: jsonEncode({
           'name': _nameController.text,
           'description': _descriptionController.text,
-          'status': 'Available', // Trạng thái mặc định
+          'status': widget.service['status'] ?? 'Available',
           'type': _selectedType,
           'price': double.parse(_priceController.text),
-          'shopId': widget.shopId,
+          'shopId': widget.service['shopId'],
         }),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Tạo dịch vụ thành công')));
+        ).showSnackBar(SnackBar(content: Text('Cập nhật dịch vụ thành công')));
         Navigator.pop(context);
       } else if (response.statusCode == 401) {
         print('Không có quyền - Token có thể không hợp lệ hoặc hết hạn');
         Navigator.pushReplacementNamed(context, '/login');
       } else {
-        throw Exception('Lỗi khi tạo dịch vụ: ${response.statusCode}');
+        throw Exception('Lỗi khi cập nhật dịch vụ: ${response.statusCode}');
       }
     } catch (e) {
-      print('Tạo dịch vụ - Lỗi: $e');
+      print('Cập nhật dịch vụ - Lỗi: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể tạo dịch vụ. Vui lòng thử lại!')),
+        SnackBar(
+          content: Text('Không thể cập nhật dịch vụ. Vui lòng thử lại!'),
+        ),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -101,7 +113,7 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
             ),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Tạo Dịch Vụ Mới',
+                'Chỉnh Sửa Dịch Vụ',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -278,7 +290,7 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
                       duration: Duration(milliseconds: 900),
                       child: Center(
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _createService,
+                          onPressed: _isLoading ? null : _updateService,
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
                               horizontal: 50,
@@ -315,7 +327,7 @@ class _CreateCareServiceScreenState extends State<CreateCareServiceScreen> {
                                         ),
                                       )
                                       : Text(
-                                        'Tạo Dịch Vụ',
+                                        'Lưu Thay Đổi',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
