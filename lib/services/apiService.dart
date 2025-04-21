@@ -7,7 +7,10 @@ import 'package:apehome_admin/models/shop.dart';
 class ApiService {
   final _storage = const FlutterSecureStorage();
 
-  Future<Map<String, dynamic>> login(String usernameOrEmail, String password) async {
+  Future<Map<String, dynamic>> login(
+    String usernameOrEmail,
+    String password,
+  ) async {
     final response = await http.post(
       Uri.parse('${ApiConstants.noAuthBaseUrl}${ApiConstants.login}'),
       headers: {'Content-Type': 'application/json'},
@@ -23,22 +26,26 @@ class ApiService {
       throw Exception('Login failed: ${response.body}');
     }
   }
-Future<Map<String, dynamic>?> getShopById(int shopId, String token) async {
-  final response = await http.get(
-    Uri.parse('${ApiConstants.authBaseUrl}/shops/$shopId'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-  );
 
-  if (response.statusCode == 200) {
-    final decodedBody = utf8.decode(response.bodyBytes);
-    return jsonDecode(decodedBody);
-  } else {
-    throw Exception('Lỗi khi lấy thông tin cửa hàng $shopId: ${response.body}');
+  Future<Map<String, dynamic>?> getShopById(int shopId, String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/shops/$shopId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      return jsonDecode(decodedBody);
+    } else {
+      throw Exception(
+        'Lỗi khi lấy thông tin cửa hàng $shopId: ${response.body}',
+      );
+    }
   }
-}
+
   // Lấy danh sách bookings
   Future<List<dynamic>?> getBookings(String token) async {
     final response = await http.get(
@@ -56,79 +63,93 @@ Future<Map<String, dynamic>?> getShopById(int shopId, String token) async {
     }
   }
 
-Future<List<dynamic>?> getBookingsByShopId(int shopId, String token) async {
-  // Thêm tham số phân trang
-  final uri = Uri.parse('${ApiConstants.authBaseUrl}/bookings/shops/$shopId').replace(
-    queryParameters: {
-      'pageNo': '0',
-      'pageSize': '30',
-      'sortBy': 'id',
-      'sortDir': 'asc',
-    },
-  );
+  Future<List<dynamic>?> getBookingsByShopId(int shopId, String token) async {
+    // Thêm tham số phân trang
+    final uri = Uri.parse(
+      '${ApiConstants.authBaseUrl}/bookings/shops/$shopId',
+    ).replace(
+      queryParameters: {
+        'pageNo': '0',
+        'pageSize': '30',
+        'sortBy': 'id',
+        'sortDir': 'asc',
+      },
+    );
 
-  final response = await http.get(
-    uri,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-  );
+    final response = await http.get(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final decodedBody = utf8.decode(response.bodyBytes); // Xử lý mã hóa UTF-8
-    final data = jsonDecode(decodedBody);
-    // Kiểm tra nếu phản hồi là phân trang
-    if (data is Map<String, dynamic> && data.containsKey('content')) {
-      return data['content']; // Trả về danh sách booking
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes); // Xử lý mã hóa UTF-8
+      final data = jsonDecode(decodedBody);
+      // Kiểm tra nếu phản hồi là phân trang
+      if (data is Map<String, dynamic> && data.containsKey('content')) {
+        return data['content']; // Trả về danh sách booking
+      }
+      return data; // Trả về danh sách trực tiếp nếu không phân trang
+    } else {
+      throw Exception('Lỗi khi lấy booking cho shop $shopId: ${response.body}');
     }
-    return data; // Trả về danh sách trực tiếp nếu không phân trang
-  } else {
-    throw Exception('Lỗi khi lấy booking cho shop $shopId: ${response.body}');
   }
-}
 
-  // Hủy booking
-  Future<Map<String, dynamic>?> cancelBooking(int bookingId, String token) async {
+  // Đổi tên từ cancelBooking thành updateBookingStatus
+  Future<String> updateBookingStatus(
+    int bookingId,
+    String status,
+    String token,
+  ) async {
     final response = await http.put(
       Uri.parse('${ApiConstants.authBaseUrl}/bookings/cancel/$bookingId'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({
-        'status': 'CANCELLED',
-      }),
+      body: jsonEncode({'status': status}),
     );
 
     if (response.statusCode == 200) {
-      return {'status': 'success'};
+      final jsonResponse = jsonDecode(response.body); // Parse JSON
+      return jsonResponse['message']; // Lấy giá trị của "message"
     } else {
-      throw Exception('Failed to cancel booking: ${response.body}');
+      throw Exception(
+        'Lỗi khi cập nhật trạng thái đơn hàng $bookingId: ${response.body}',
+      );
     }
   }
 
   // Lấy chi tiết booking
- Future<Map<String, dynamic>?> getBookingDetails(int bookingId, String token) async {
-  final response = await http.get(
-    Uri.parse('${ApiConstants.authBaseUrl}/bookings/$bookingId'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-  );
+  Future<Map<String, dynamic>?> getBookingDetails(
+    int bookingId,
+    String token,
+  ) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/bookings/$bookingId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final decodedBody = utf8.decode(response.bodyBytes); // Xử lý UTF-8
-    return jsonDecode(decodedBody);
-  } else {
-    throw Exception('Lỗi khi lấy chi tiết booking $bookingId: ${response.body}');
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes); // Xử lý UTF-8
+      return jsonDecode(decodedBody);
+    } else {
+      throw Exception(
+        'Lỗi khi lấy chi tiết booking $bookingId: ${response.body}',
+      );
+    }
   }
-}
 
   // Lấy danh sách shops theo userId
   Future<List<dynamic>?> getShopsByUserId(String userId, String token) async {
-    final uri = Uri.parse('${ApiConstants.authBaseUrl}/shops/users/$userId').replace(
+    final uri = Uri.parse(
+      '${ApiConstants.authBaseUrl}/shops/users/$userId',
+    ).replace(
       queryParameters: {
         'pageNo': '0',
         'pageSize': '30',
@@ -150,7 +171,48 @@ Future<List<dynamic>?> getBookingsByShopId(int shopId, String token) async {
       final data = jsonDecode(decodedBody);
       return data['content'] ?? data;
     } else {
-      throw Exception('Failed to fetch shops for user $userId: ${response.body}');
+      throw Exception(
+        'Failed to fetch shops for user $userId: ${response.body}',
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPetById(int petId, String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/pets/$petId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      return jsonDecode(decodedBody);
+    } else {
+      throw Exception(
+        'Lỗi khi lấy thông tin thú cưng $petId: ${response.body}',
+      );
+    }
+  }
+
+  // Phương thức mới: Lấy thông tin khách hàng
+  Future<Map<String, dynamic>?> getUserById(int userId, String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.authBaseUrl}/users/$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      return jsonDecode(decodedBody);
+    } else {
+      throw Exception(
+        'Lỗi khi lấy thông tin khách hàng $userId: ${response.body}',
+      );
     }
   }
 }

@@ -186,9 +186,111 @@ class BookingDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Thông tin đơn hàng
+                      // Thông tin khách hàng
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 450),
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.person,
+                                      color: Color(0xFF4EA0B7),
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Thông Tin Khách Hàng',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF2D2D2D),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                _buildInfoRow(
+                                  Icons.person,
+                                  'Tên khách hàng',
+                                  booking['userName'] ?? 'Không xác định',
+                                ),
+                                _buildInfoRow(
+                                  Icons.email,
+                                  'Email',
+                                  booking['userEmail'] ?? 'Không có thông tin',
+                                ),
+                                _buildInfoRow(
+                                  Icons.phone,
+                                  'Số điện thoại',
+                                  booking['userPhone'] ?? 'Không có thông tin',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Thông tin thú cưng
                       FadeInUp(
                         duration: const Duration(milliseconds: 500),
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.pets,
+                                      color: Color(0xFF4EA0B7),
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Thông Tin Thú Cưng',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF2D2D2D),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                _buildInfoRow(
+                                  Icons.pets,
+                                  'Tên thú cưng',
+                                  booking['petName'] ?? 'Không xác định',
+                                ),
+                                _buildInfoRow(
+                                  Icons.category,
+                                  'Loại',
+                                  booking['petType'] ?? 'Không xác định',
+                                ),
+                                _buildInfoRow(
+                                  Icons.cake,
+                                  'Tuổi',
+                                  booking['petAge']?.toString() ?? 'Không xác định',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Thông tin đơn hàng
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 550),
                         child: Card(
                           elevation: 4,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -235,16 +337,6 @@ class BookingDetailsScreen extends StatelessWidget {
                                   Icons.monetization_on,
                                   'Tổng tiền',
                                   '${booking['totalPrice']?.toString() ?? '0'} VND',
-                                ),
-                                _buildInfoRow(
-                                  Icons.pets,
-                                  'ID Thú cưng',
-                                  booking['petId']?.toString() ?? 'Không xác định',
-                                ),
-                                _buildInfoRow(
-                                  Icons.person,
-                                  'ID Khách hàng',
-                                  booking['userId']?.toString() ?? 'Không xác định',
                                 ),
                                 if (booking['note'] != null && booking['note'].isNotEmpty)
                                   _buildInfoRow(
@@ -352,9 +444,9 @@ class BookingDetailsScreen extends StatelessWidget {
       final bookingDetails = await apiService.getBookingDetails(bookingId, token);
 
       if (bookingDetails != null) {
-        // Lấy thông tin cửa hàng trực tiếp bằng shopId
+        // Lấy thông tin cửa hàng
         final shop = await apiService.getShopById(shopId, token);
-        print('Shop data for shopId $shopId: $shop'); // Debug log
+        print('Shop data for shopId $shopId: $shop');
         if (shop != null) {
           bookingDetails['shopName'] = shop['name'];
           bookingDetails['shopAddress'] = shop['address'];
@@ -370,6 +462,44 @@ class BookingDetailsScreen extends StatelessWidget {
             backgroundColor: Colors.orange,
             colorText: Colors.white,
           );
+        }
+
+        // Lấy thông tin thú cưng
+        if (bookingDetails['petId'] != null) {
+          final pet = await apiService.getPetById(bookingDetails['petId'], token);
+          print('Pet data for petId ${bookingDetails['petId']}: $pet');
+          if (pet != null) {
+            bookingDetails['petName'] = pet['name'];
+            bookingDetails['petType'] = pet['type'];
+            bookingDetails['petAge'] = pet['age'];
+          } else {
+            print('Không tìm thấy thông tin thú cưng với petId: ${bookingDetails['petId']}');
+            Get.snackbar(
+              'Lỗi',
+              'Không tìm thấy thông tin thú cưng cho đơn hàng này',
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
+          }
+        }
+
+        // Lấy thông tin khách hàng
+        if (bookingDetails['userId'] != null) {
+          final user = await apiService.getUserById(bookingDetails['userId'], token);
+          print('User data for userId ${bookingDetails['userId']}: $user');
+          if (user != null) {
+            bookingDetails['userName'] = user['name'];
+            bookingDetails['userEmail'] = user['email'];
+            bookingDetails['userPhone'] = user['phone'];
+          } else {
+            print('Không tìm thấy thông tin khách hàng với userId: ${bookingDetails['userId']}');
+            Get.snackbar(
+              'Lỗi',
+              'Không tìm thấy thông tin khách hàng cho đơn hàng này',
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
+          }
         }
       }
 

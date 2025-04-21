@@ -95,6 +95,10 @@ class BookingListScreenContent extends StatelessWidget {
                             itemCount: controller.filteredBookings.length,
                             itemBuilder: (context, index) {
                               final booking = controller.filteredBookings[index];
+                              // Kiểm tra booking['id'] trước khi truyền
+                              if (booking['id'] == null) {
+                                print('Lỗi: bookingId không tồn tại trong booking: $booking');
+                              }
                               return FadeInUp(
                                 duration: Duration(milliseconds: 300 + (index * 100)),
                                 child: Card(
@@ -159,7 +163,7 @@ class BookingListScreenContent extends StatelessWidget {
                                               const SizedBox(height: 6),
                                               // ID đơn hàng
                                               Text(
-                                                'Đơn hàng #${booking['id']}',
+                                                'Đơn hàng #${booking['id'] ?? 'Không xác định'}',
                                                 style: const TextStyle(
                                                   fontSize: 13,
                                                   color: Color(0xFF6B7280),
@@ -260,17 +264,21 @@ class BookingListScreenContent extends StatelessWidget {
                                                 ));
                                               },
                                             ),
-                                            if (booking['status'] == 'PENDING')
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.cancel,
-                                                  color: Colors.red,
-                                                  size: 24,
-                                                ),
-                                                onPressed: () {
-                                                  controller.cancelBooking(booking['id']);
-                                                },
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.edit,
+                                                color: Color(0xFF4EA0B7),
+                                                size: 24,
                                               ),
+                                              onPressed: () {
+                                                if (booking['id'] != null) {
+                                                  _showUpdateStatusDialog(context, controller, booking['id'], booking['status']);
+                                                } else {
+                                                  Get.snackbar('Lỗi', 'Không tìm thấy ID đơn hàng',
+                                                      backgroundColor: Colors.red, colorText: Colors.white);
+                                                }
+                                              },
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -282,6 +290,69 @@ class BookingListScreenContent extends StatelessWidget {
                           ),
                         );
             }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showUpdateStatusDialog(BuildContext context, BookingController controller, int bookingId, String currentStatus) {
+    // Sử dụng RxString để quản lý trạng thái động
+    RxString selectedStatus = currentStatus.obs;
+
+    print('Mở dialog cập nhật trạng thái cho bookingId: $bookingId, trạng thái hiện tại: $currentStatus');
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text(
+          'Cập Nhật Trạng Thái Đơn Hàng',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        content: Obx(() => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Chọn trạng thái mới:'),
+            const SizedBox(height: 10),
+            DropdownButton<String>(
+              value: selectedStatus.value,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  selectedStatus.value = newValue; // Cập nhật giá trị RxString
+                  print('Trạng thái được chọn: $newValue');
+                }
+              },
+              items: <String>['PENDING', 'COMPLETED', 'CANCELLED']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(_getStatusText(value)),
+                );
+              }).toList(),
+            ),
+          ],
+        )),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text('Hủy', style: TextStyle(color: Colors.red)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (selectedStatus.value != currentStatus) {
+                print('Gọi updateBookingStatus với bookingId: $bookingId, trạng thái mới: ${selectedStatus.value}');
+                controller.updateBookingStatus(bookingId, selectedStatus.value);
+                Get.back();
+              } else {
+                Get.snackbar('Thông báo', 'Vui lòng chọn trạng thái khác với trạng thái hiện tại',
+                    backgroundColor: Colors.orange, colorText: Colors.white);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4EA0B7),
+            ),
+            child: const Text('Cập nhật', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
