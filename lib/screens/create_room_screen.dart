@@ -46,7 +46,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/room-types');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types');
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -103,7 +103,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
       final codes = _codesController.text.split(',').map((code) => code.trim()).toList();
 
-      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/rooms');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms');
       final response = await http.post(
         uri,
         headers: {

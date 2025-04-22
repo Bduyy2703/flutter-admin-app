@@ -56,7 +56,7 @@ class _EditCareServiceScreenState extends State<EditCareServiceScreen> {
       }
 
       final uri = Uri.parse(
-        'http://172.20.10.3:9090/api/v1/services/${widget.service['id']}',
+        'http://192.168.41.175:9090/api/v1/services/${widget.service['id']}',
       );
       final response = await http.put(
         uri,

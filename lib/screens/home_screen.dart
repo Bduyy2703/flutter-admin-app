@@ -588,7 +588,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       // 1. Lấy danh sách Shop theo userId
-      final shopUri = Uri.parse('http://172.20.10.3:9090/api/v1/shops/users/$userId?pageNo=0&pageSize=100&sortBy=id&sortDir=asc');
+      final shopUri = Uri.parse('http://192.168.41.175:9090/api/v1/shops/users/$userId?pageNo=0&pageSize=100&sortBy=id&sortDir=asc');
       final shopResponse = await http.get(
         shopUri,
         headers: {'Authorization': 'Bearer $token'},
@@ -614,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       for (var shop in shops) {
         final shopId = shop['id'];
-        final bookingUri = Uri.parse('http://172.20.10.3:9090/api/v1/bookings/shops/$shopId?pageNo=0&pageSize=100&sortBy=id&sortDir=asc');
+        final bookingUri = Uri.parse('http://192.168.41.175:9090/api/v1/bookings/shops/$shopId?pageNo=0&pageSize=100&sortBy=id&sortDir=asc');
         final bookingResponse = await http.get(
           bookingUri,
           headers: {'Authorization': 'Bearer $token'},

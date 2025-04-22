@@ -26,7 +26,7 @@ class RoomTypesController extends GetxController {
         return;
       }
 
-      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/room-types');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types');
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -56,7 +56,7 @@ class RoomTypesController extends GetxController {
         return;
       }
 
-      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/room-types/$roomTypeId');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/room-types/$roomTypeId');
       final response = await http.delete(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -87,8 +87,8 @@ class RoomTypesController extends GetxController {
 
       final uri = Uri.parse(
         roomTypeId == null
-            ? 'http://172.20.10.3:9090/api/v1/room-types'
-            : 'http://172.20.10.3:9090/api/v1/room-types/$roomTypeId',
+            ? 'http://192.168.41.175:9090/api/v1/room-types'
+            : 'http://192.168.41.175:9090/api/v1/room-types/$roomTypeId',
       );
 
       final response = roomTypeId == null

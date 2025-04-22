@@ -47,7 +47,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/rooms/shops/${widget.shopId}');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms/shops/${widget.shopId}');
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -107,7 +107,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/rooms/$roomId');
+      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms/$roomId');
       final response = await http.delete(
         uri,
         headers: {'Authorization': 'Bearer $token'},
