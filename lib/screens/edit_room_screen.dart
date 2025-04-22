@@ -40,7 +40,7 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/rooms/${widget.room['id']}?status=${_selectedStatus!.toLowerCase()}');
+      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/rooms/${widget.room['id']}?status=${_selectedStatus!.toLowerCase()}');
       final response = await http.put(
         uri,
         headers: {

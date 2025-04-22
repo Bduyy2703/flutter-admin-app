@@ -38,7 +38,7 @@ class _CareServicesScreenState extends State<CareServicesScreen> {
       }
 
       final uri = Uri.parse(
-        'http://192.168.41.175:9090/api/v1/services/shops/${widget.shopId}',
+        'http://172.20.10.3:9090/api/v1/services/shops/${widget.shopId}',
       );
       final response = await http.get(
         uri,
@@ -105,7 +105,7 @@ class _CareServicesScreenState extends State<CareServicesScreen> {
       }
 
       final uri = Uri.parse(
-        'http://192.168.41.175:9090/api/v1/services/$serviceId',
+        'http://172.20.10.3:9090/api/v1/services/$serviceId',
       );
       final response = await http.delete(
         uri,

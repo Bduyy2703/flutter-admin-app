@@ -64,7 +64,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/shops/${widget.shopId}');
+      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/shops/${widget.shopId}');
       final response = await http.get(
         uri,
         headers: {'Authorization': 'Bearer $token'},
@@ -116,7 +116,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/shops/${widget.shopId}');
+      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/shops/${widget.shopId}');
       final response = await http.put(
         uri,
         headers: {
@@ -182,7 +182,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
         return;
       }
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/shops/images/${widget.shopId}');
+      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/shops/images/${widget.shopId}');
       final request = http.MultipartRequest('PUT', uri)
         ..headers['Authorization'] = 'Bearer $token'
         ..files.add(await http.MultipartFile.fromPath('images', _selectedImage!.path));

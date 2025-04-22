@@ -92,7 +92,7 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
 
       print('Creating Shop - Token: $token');
       print('Creating Shop - UserId: $parsedUserId');
-      print('Creating Shop - URL: http://192.168.41.175:9090/api/v1/shops');
+      print('Creating Shop - URL: http://172.20.10.3:9090/api/v1/shops');
       print('Creating Shop - Body: ${jsonEncode({
             'name': _nameController.text,
             'address': _addressController.text,
@@ -105,7 +105,7 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
             'imageFiles': [],
           })}');
 
-      final uri = Uri.parse('http://192.168.41.175:9090/api/v1/shops');
+      final uri = Uri.parse('http://172.20.10.3:9090/api/v1/shops');
       final response = await http.post(
         uri,
         headers: {
