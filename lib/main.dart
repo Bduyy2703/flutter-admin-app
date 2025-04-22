@@ -1,5 +1,5 @@
-
 import 'package:apehome_admin/screens/booking_screen.dart';
+import 'package:apehome_admin/screens/pet_types_screen.dart';
 import 'package:apehome_admin/screens/room_types_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,15 +21,13 @@ class MyApp extends StatelessWidget {
       create: (_) => AuthProvider(),
       child: GetMaterialApp(
         title: 'Apehome Admin',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          fontFamily: 'OpenSans',
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'OpenSans'),
         initialRoute: '/login',
         getPages: [
           GetPage(name: '/login', page: () => LoginScreen()),
           GetPage(name: '/home', page: () => HomeScreen()),
           GetPage(name: '/room-types', page: () => RoomTypesScreen()),
+          GetPage(name: '/pet-types', page: () => PetTypesScreen()),
           GetPage(name: '/bookings', page: () => BookingListScreen()),
           GetPage(name: '/shops', page: () => ShopListScreen()),
           GetPage(name: '/settings', page: () => SettingsScreen()),
@@ -48,6 +46,8 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(builder: (_) => ShopListScreen());
             case '/settings':
               return MaterialPageRoute(builder: (_) => SettingsScreen());
+            case '/pet-types':
+              return MaterialPageRoute(builder: (_) => PetTypesScreen());
             default:
               return MaterialPageRoute(builder: (_) => LoginScreen());
           }

@@ -876,7 +876,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onPressed: () {
                                     print('Navigating to /pet-types');
                                     try {
-                                      Navigator.of(context).pushNamed('/pet-types');
+                                      Get.toNamed('/pet-types');
                                     } catch (e) {
                                       print('Error navigating to /pet-types: $e');
                                       ScaffoldMessenger.of(context).showSnackBar(
