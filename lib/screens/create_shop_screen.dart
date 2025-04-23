@@ -19,7 +19,6 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
   bool _isLoading = false;
 
   Future<void> _createShop() async {
-    // Validate các trường bắt buộc
     if (_nameController.text.isEmpty ||
         _addressController.text.isEmpty ||
         _phoneController.text.isEmpty ||
@@ -32,7 +31,6 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
       return;
     }
 
-    // Validate định dạng phone
     final phonePattern = RegExp(r'^\+?[0-9]{10,15}$');
     if (!phonePattern.hasMatch(_phoneController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -41,7 +39,6 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
       return;
     }
 
-    // Validate định dạng accountNumber
     final accountNumberPattern = RegExp(r'^[0-9]{10,20}$');
     if (!accountNumberPattern.hasMatch(_accountNumberController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +62,6 @@ class _CreateShopScreenState extends State<CreateShopScreen> {
         return;
       }
 
-      // Giải mã token để lấy userId
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       final userId = decodedToken['userId']?.toString() ?? '';
 
