@@ -42,22 +42,18 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response != null && response.containsKey('access_token')) {
-        // Lưu token và userId vào FlutterSecureStorage
         await _storage.write(key: 'token', value: response['access_token']);
         await _storage.write(key: 'userId', value: response['userId']?.toString() ?? '');
         await _storage.write(key: 'fullName', value: response['fullName'] ?? '');
         await _storage.write(key: 'isPremium', value: response['isPremium']?.toString() ?? 'false');
 
-        // Lưu token và userId vào SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response['access_token']);
         await prefs.setString('userId', response['userId']?.toString() ?? '');
 
-        // Cập nhật AuthProvider
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         await authProvider.login(response['access_token']);
 
-        // Chuyển hướng đến Home
         Get.offNamed('/home');
       } else {
         throw Exception('Phản hồi API không hợp lệ');
@@ -97,7 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo
                 Image.asset(
                   'assets/images/logo.png',
                   width: 200,
@@ -106,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 100),
                 ),
                 const SizedBox(height: 20),
-                // Welcome text
                 const Text(
                   'Chào mừng đến với ApeHome Admin!',
                   style: TextStyle(
@@ -127,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
-                // Username or Email input
                 TextField(
                   controller: _usernameController,
                   keyboardType: TextInputType.emailAddress,
@@ -152,7 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Password input
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
@@ -177,7 +169,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Login button
                 _isLoading
                     ? const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF416FAE)),
@@ -204,7 +195,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                 const SizedBox(height: 10),
-                // Signup button
                 TextButton(
                   onPressed: _navigateToSignup,
                   child: const Text(
