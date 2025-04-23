@@ -51,7 +51,6 @@ class BookingDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header với hình ảnh cửa hàng
                 Stack(
                   children: [
                     Container(
@@ -134,13 +133,11 @@ class BookingDetailsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Nội dung chi tiết
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Thông tin cửa hàng
                       FadeInUp(
                         duration: const Duration(milliseconds: 400),
                         child: Card(
@@ -186,7 +183,6 @@ class BookingDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Thông tin khách hàng
                       FadeInUp(
                         duration: const Duration(milliseconds: 450),
                         child: Card(
@@ -237,7 +233,6 @@ class BookingDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Thông tin thú cưng
                       FadeInUp(
                         duration: const Duration(milliseconds: 500),
                         child: Card(
@@ -288,7 +283,6 @@ class BookingDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Thông tin đơn hàng
                       FadeInUp(
                         duration: const Duration(milliseconds: 550),
                         child: Card(
@@ -350,7 +344,6 @@ class BookingDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Dịch vụ đã chọn
                       if (booking['careServices'] != null && (booking['careServices'] as List).isNotEmpty) ...[
                         FadeInUp(
                           duration: const Duration(milliseconds: 600),
@@ -464,7 +457,6 @@ class BookingDetailsScreen extends StatelessWidget {
           );
         }
 
-        // Lấy thông tin thú cưng
         if (bookingDetails['petId'] != null) {
           final pet = await apiService.getPetById(bookingDetails['petId'], token);
           print('Pet data for petId ${bookingDetails['petId']}: $pet');
@@ -483,7 +475,6 @@ class BookingDetailsScreen extends StatelessWidget {
           }
         }
 
-        // Lấy thông tin khách hàng
         if (bookingDetails['userId'] != null) {
           final user = await apiService.getUserById(bookingDetails['userId'], token);
           print('User data for userId ${bookingDetails['userId']}: $user');
