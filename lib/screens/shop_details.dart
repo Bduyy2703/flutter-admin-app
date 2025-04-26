@@ -23,7 +23,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
   Map<String, dynamic>? _shopDetails;
   bool _isLoading = true;
   bool _isEditing = false;
-  bool _isUpdating = false; // Trạng thái loading cho nút
+  bool _isUpdating = false;
 
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
@@ -33,7 +33,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
   final _accountNumberController = TextEditingController();
   File? _selectedImage;
 
-  final _formKey = GlobalKey<FormState>(); // Dùng để kiểm tra form
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {

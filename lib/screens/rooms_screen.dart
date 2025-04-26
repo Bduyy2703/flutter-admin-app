@@ -18,9 +18,8 @@ class RoomsScreen extends StatefulWidget {
 class _RoomsScreenState extends State<RoomsScreen> {
   List<dynamic> _rooms = [];
   bool _isLoading = true;
-  String _selectedFilter = 'Tất cả'; // Biến lưu trạng thái bộ lọc
+  String _selectedFilter = 'Tất cả'; 
 
-  // Danh sách các trạng thái để lọc
   final List<Map<String, String>> _statusFilters = [
     {'value': 'Tất cả', 'label': 'Tất cả'},
     {'value': 'AVAILABLE', 'label': 'Sẵn sàng'},
