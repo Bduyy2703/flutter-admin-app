@@ -57,13 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // Decode token để lấy userId
     String? userId;
     try {
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       userId = decodedToken['userId']?.toString();
-      // Giả sử userId nằm trong payload với key 'userId'
-      // Nếu key khác (ví dụ 'sub', 'id'), bạn cần thay đổi key tương ứng
       if (userId == null) {
         throw Exception('Không tìm thấy userId trong token');
       }
