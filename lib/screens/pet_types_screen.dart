@@ -51,7 +51,7 @@ class _PetTypesScreenState extends State<PetTypesScreen> {
         setState(() {
           _petTypes = data;
           _filteredPetTypes = data;
-          _totalElements = data.length; // API không trả về totalElements, giả định bằng độ dài danh sách
+          _totalElements = data.length; 
         });
       } else {
         throw Exception('Lỗi khi tải danh sách loại thú cưng: ${response.statusCode}');
@@ -87,7 +87,7 @@ class _PetTypesScreenState extends State<PetTypesScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar('Thành công', 'Đã thêm loại thú cưng mới',
             backgroundColor: Colors.green, colorText: Colors.white);
-        _fetchPetTypes(); // Làm mới danh sách
+        _fetchPetTypes(); 
       } else {
         throw Exception('Lỗi khi thêm loại thú cưng: ${response.statusCode}');
       }
@@ -120,7 +120,7 @@ class _PetTypesScreenState extends State<PetTypesScreen> {
       if (response.statusCode == 200) {
         Get.snackbar('Thành công', 'Đã cập nhật loại thú cưng',
             backgroundColor: Colors.green, colorText: Colors.white);
-        _fetchPetTypes(); // Làm mới danh sách
+        _fetchPetTypes(); 
       } else {
         throw Exception('Lỗi khi cập nhật loại thú cưng: ${response.statusCode}');
       }
@@ -149,7 +149,7 @@ class _PetTypesScreenState extends State<PetTypesScreen> {
       if (response.statusCode == 200 || response.statusCode == 204) {
         Get.snackbar('Thành công', 'Đã xóa loại thú cưng',
             backgroundColor: Colors.green, colorText: Colors.white);
-        _fetchPetTypes(); // Làm mới danh sách
+        _fetchPetTypes(); 
       } else {
         throw Exception('Lỗi khi xóa loại thú cưng: ${response.statusCode}');
       }
