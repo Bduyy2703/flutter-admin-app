@@ -69,7 +69,6 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
       setState(() => _isLoading = false);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
